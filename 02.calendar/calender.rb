@@ -26,24 +26,25 @@ puts '日 月 火 水 木 金 土'
 
 for num in firstday_of_month..lastday_of_month do
   # 1日のみ出力位置の調整
-  if num.strftime('%-d') == "1"
+  if num.day == 1
     print ' '
     print '   ' * num.wday
-    if num.strftime('%a') == "Sat"
+    if num.saturday?
       puts num.day
     else
       print num.day
+      print ' '
     end
   else
-    if num.strftime('%a') == "Sat"
-      if num.strftime('%-d').to_i <= 9
+    if num.saturday?
+      if num.day <= 9
         print ' '
         puts num.day
       else
         puts num.day
       end
     else
-      if num.strftime('%-d').to_i <= 9
+      if num.day <= 9
         print ' '
         print num.day
         print ' '
