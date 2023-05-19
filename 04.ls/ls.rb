@@ -1,8 +1,18 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-files = Dir.glob('*')
+require 'optparse'
+
 COLUMNS = 3
+
+# -aオプション判定
+def check_a_option
+  opt = OptionParser.new
+  flg = false
+  opt.on('-a') { flg = true }
+  opt.parse!(ARGV)
+  flg ? Dir.entries('.').sort : Dir.glob('*')
+end
 
 # 列の長さを計算
 def calculate_row_size(files)
@@ -33,6 +43,7 @@ def show_files(files, row_size)
   end
 end
 
+files = check_a_option
 row_size = calculate_row_size(files)
 filenames_length = max_filename_length(files) + 2
 files = ljust_filenames(files, filenames_length)
