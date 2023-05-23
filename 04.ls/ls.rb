@@ -5,13 +5,13 @@ require 'optparse'
 
 COLUMNS = 3
 
-# -aオプション判定
-def get_file_based_on_flg_a
+# オプションを処理してファイルを取得
+def read_file_based_on_options
   opt = OptionParser.new
   flg_a = false
   opt.on('-a') { flg_a = true }
   opt.parse!(ARGV)
-  flg_a ?  ['.', '..'] + Dir.glob('*', File::FNM_DOTMATCH).reject { |f| f == '.' }.sort : Dir.glob('*')
+  Dir.glob('*', flg_a ? File::FNM_DOTMATCH : 0)
 end
 
 # 列の長さを計算
@@ -43,7 +43,7 @@ def show_files(files, row_size)
   end
 end
 
-files = get_file_based_on_flg_a
+files = read_file_based_on_options
 row_size = calculate_row_size(files)
 filenames_length = max_filename_length(files) + 2
 files = ljust_filenames(files, filenames_length)
