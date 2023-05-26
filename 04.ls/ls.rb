@@ -8,16 +8,16 @@ COLUMNS = 3
 # オプションを処理する
 def parse_options
   opt = OptionParser.new
-  flg = {}
-  opt.on('-r') { flg[:r] = true }
+  options = {}
+  opt.on('-r') { options[:r] = true }
   opt.parse!(ARGV)
-  flg
+  options
 end
 
 # ファイルを取得
-def read_file_based_on_options(flg)
+def read_file_based_on_options(options)
   files = Dir.glob('*')
-  flg[:r] ? files.reverse : files
+  options[:r] ? files.reverse : files
 end
 
 # 列の長さを計算
@@ -49,8 +49,8 @@ def show_files(files, row_size)
   end
 end
 
-flg = parse_options
-files = read_file_based_on_options(flg)
+options = parse_options
+files = read_file_based_on_options(options)
 row_size = calculate_row_size(files)
 filenames_length = max_filename_length(files) + 2
 files = ljust_filenames(files, filenames_length)
