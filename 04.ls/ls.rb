@@ -22,27 +22,26 @@ def show_files_based_on_options(files, options)
   if options[:l]
     show_detail(files)
   else
-    show_normal(files)
+    show_simple(files)
   end
 end
 
 def show_detail(files)
   puts "total #{total_blocks(files)}"
   files.each do |file|
-    file_modification = File.stat(file).mtime
-    file_modification_timestamp = "#{file_modification.mon} #{file_modification.day} #{file_modification.hour}:#{file_modification.min}"
     print type(file)
     print permission(file)
-    print just_name(File.stat(file).nlink.to_s, 3, 'right')
-    print just_name(owner(file), owner(file).length + 1, 'right')
-    print just_name(group(file), group(file).length + 2, 'right')
-    print just_name(File.stat(file).size.to_s, 6, 'right')
-    print just_name(file_modification_timestamp, file_modification_timestamp.length + 2, 'right')
-    puts just_name(file, file.length + 1, 'right')
+    print File.stat(file).nlink.to_s.rjust(3)
+    print owner(file).rjust(owner(file).length + 1)
+    print group(file).rjust(group(file).length + 2)
+    print File.stat(file).size.to_s.rjust(6)
+    file_modification_timestamp = File.stat(file).mtime.strftime('%_m %_d %0k:%M')
+    print file_modification_timestamp.rjust(file_modification_timestamp.length + 1)
+    puts file.rjust(file.length + 1)
   end
 end
 
-def show_normal(files)
+def show_simple(files)
   row_size = calculate_row_size(files)
   filenames_length = max_filename_length(files) + 2
   files = files.map { |e| e.ljust(filenames_length) }
@@ -58,14 +57,6 @@ end
 
 def max_filename_length(files)
   files.map(&:size).max
-end
-
-def just_name(name, max_length, right_or_left)
-  if right_or_left == 'right'
-    name.rjust(max_length)
-  elsif right_or_left == 'left'
-    name.ljust(max_length)
-  end
 end
 
 # のちにtransposeメソッドで配列を転置させるために、足りない要素数分nilを追加
