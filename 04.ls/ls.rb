@@ -22,7 +22,7 @@ def show_files_based_on_options(files, options)
   if options[:l]
     show_detail(files)
   else
-    show_simple(files)
+    show_multi_columns(files)
   end
 end
 
@@ -41,7 +41,7 @@ def show_detail(files)
   end
 end
 
-def show_simple(files)
+def show_multi_columns(files)
   row_size = calculate_row_size(files)
   filenames_length = max_filename_length(files) + 2
   files = files.map { |e| e.ljust(filenames_length) }
