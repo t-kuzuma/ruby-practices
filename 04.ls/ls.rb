@@ -1,38 +1,62 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
+require 'etc'
 require 'optparse'
 
 COLUMNS = 3
 
-# オプションを処理する
 def parse_options
   opt = OptionParser.new
   options = {}
-  opt.on('-r') { options[:r] = true }
+  opt.on('-l') { options[:l] = true }
   opt.parse!(ARGV)
   options
 end
 
-# ファイルを取得
-def read_file_based_on_options(options)
-  files = Dir.glob('*')
-  options[:r] ? files.reverse : files
+def read_file
+  Dir.glob('*')
 end
 
-# 列の長さを計算
+def show_files_based_on_options(files, options)
+  if options[:l]
+    show_detail(files)
+  else
+    show_multi_columns(files)
+  end
+end
+
+def show_detail(files)
+  puts "total #{total_blocks(files)}"
+  files.each do |file|
+    print type(file)
+    print permission(file)
+    print File.stat(file).nlink.to_s.rjust(3)
+    print owner(file).rjust(owner(file).length + 1)
+    print group(file).rjust(group(file).length + 2)
+    print File.stat(file).size.to_s.rjust(6)
+    file_modification_timestamp = File.stat(file).mtime.strftime('%_m %_d %0k:%M')
+    print file_modification_timestamp.rjust(file_modification_timestamp.length + 1)
+    puts file.rjust(file.length + 1)
+  end
+end
+
+def show_multi_columns(files)
+  row_size = calculate_row_size(files)
+  filenames_length = max_filename_length(files) + 2
+  files = files.map { |e| e.ljust(filenames_length) }
+  files = nil_plus(files, row_size)
+  files.each_slice(row_size).to_a.transpose.each do |row|
+    puts row.join
+  end
+end
+
 def calculate_row_size(files)
   (files.size / COLUMNS.to_f).ceil
 end
 
-# ファイル名の長さの最大値を取得
 def max_filename_length(files)
   files.map(&:size).max
-end
-
-# 配列の各要素の文字列の長さをmax_lengthに統一する
-def ljust_filenames(files, max_length)
-  files.map { |e| e.ljust(max_length) }
 end
 
 # のちにtransposeメソッドで配列を転置させるために、足りない要素数分nilを追加
@@ -42,17 +66,43 @@ def nil_plus(files, row_size)
   files
 end
 
-# ファイルを出力する
-def show_files(files, row_size)
-  files.each_slice(row_size).to_a.transpose.each do |row|
-    puts row.join
+def total_blocks(files)
+  files.sum do |file|
+    File.stat(file).blocks
   end
 end
 
+def type(file)
+  {
+    'directory' => 'd',
+    'file' => '-',
+    'link' => 'l'
+  }[File.stat(file).ftype]
+end
+
+def permission(file)
+  File.stat(file).mode.to_s(8).slice(-3, 3).chars.map do |char|
+    {
+      '7' => 'rwx',
+      '6' => 'rw-',
+      '5' => 'r-x',
+      '4' => 'r--',
+      '3' => '-wx',
+      '2' => '-w-',
+      '1' => '--x',
+      '0' => '---'
+    }[char]
+  end.join
+end
+
+def owner(file)
+  Etc.getpwuid(File.stat(file).uid).name
+end
+
+def group(file)
+  Etc.getgrgid(File.stat(file).gid).name
+end
+
 options = parse_options
-files = read_file_based_on_options(options)
-row_size = calculate_row_size(files)
-filenames_length = max_filename_length(files) + 2
-files = ljust_filenames(files, filenames_length)
-files = nil_plus(files, row_size)
-show_files(files, row_size)
+files = read_file
+show_files_based_on_options(files, options)
