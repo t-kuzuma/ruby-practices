@@ -10,12 +10,15 @@ def parse_options
   opt = OptionParser.new
   options = {}
   opt.on('-l') { options[:l] = true }
+  opt.on('-a') { options[:a] = true }
+  opt.on('-r') { options[:r] = true }
   opt.parse!(ARGV)
   options
 end
 
-def read_file
-  Dir.glob('*')
+def read_file_based_on_options(options)
+  files = Dir.glob('*', options[:a] ? File::FNM_DOTMATCH : 0)
+  options[:r] ? files.reverse : files
 end
 
 def show_files_based_on_options(files, options)
@@ -104,5 +107,5 @@ def group(file)
 end
 
 options = parse_options
-files = read_file
+files = read_file_based_on_options(options)
 show_files_based_on_options(files, options)
