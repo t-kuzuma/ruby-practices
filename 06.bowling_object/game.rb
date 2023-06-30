@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Game
-  attr_reader :frames
-
   def initialize(scores)
     @scores = scores
   end
@@ -12,33 +10,24 @@ class Game
     frame = []
 
     @scores.each do |n|
+      score = Shot.new(n).score
+      frame << score
       if frames.size == 9
-        if n == 'X'
-          frame << 10
-        else
-          frame << n.to_i
-        end
-
-        if frame.size == 2
-          frames << frame if (frame[0] + frame[1]) < 10
-        elsif frame.size == 3
-          frames << frame
-        end
-      else
-        if n == 'X'
-          frame << 10
-          frames << frame
-          frame = []
-        elsif frame.size == 1
-          frame << n.to_i
-          frames << frame
-          frame = []
-        else
-          frame << n.to_i
-        end
+        add_frame_in_tenth(frames, frame)
+      elsif n == 'X' || frame.size == 2
+        frames << frame
+        frame = []
       end
     end
     frames
+  end
+
+  def add_frame_in_tenth(frames, frame)
+    if frame.size == 2
+      frames << frame if frame.map.sum < 10
+    elsif frame.size == 3
+      frames << frame
+    end
   end
 
   def convert_to_frame_objects
@@ -49,22 +38,36 @@ class Game
 
   def calculate_bonus
     @frames.each_with_index do |frame, i|
-      if frame.score == 10 && i != 9
-        if frame.first_shot == 10
-          if @frames[i+1].first_shot == 10 && i < 8
-            frame.bonus = @frames[i+1].first_shot + (@frames[i+2]&.first_shot || 0)
-          else
-            frame.bonus = @frames[i+1].first_shot + @frames[i+1].second_shot
-          end
-        else
-          frame.bonus = @frames[i+1].first_shot
-        end
-      end
+      calculate_frame_bonus(frame, i) if frame.score == 10 && i != 9
     end
+  end
+
+  def calculate_frame_bonus(frame, index)
+    if frame.first_score == 10
+      calculate_strike_bonus(frame, index)
+    else
+      calculate_spare_bonus(frame, index)
+    end
+  end
+
+  def calculate_strike_bonus(frame, index)
+    next_frame = @frames[index + 1]
+    bonus_score = if next_frame.first_score == 10 && index < 8
+                    @frames[index + 2].first_score
+                  else
+                    next_frame.second_score
+                  end
+    frame.bonus = next_frame.first_score + bonus_score
+  end
+
+  def calculate_spare_bonus(frame, index)
+    frame.bonus = @frames[index + 1].first_score
   end
 
   def sum_score
     frame_scores = 0
+    convert_to_frame_objects
+    calculate_bonus
     @frames.each do |frame|
       frame_scores += frame.score
     end

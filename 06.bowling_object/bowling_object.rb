@@ -5,13 +5,7 @@ require_relative 'shot'
 require_relative 'frame'
 require_relative 'game'
 
-score = ARGV[0]
-scores = score.split(',')
+scores = ARGV[0].split(',')
 
 game = Game.new(scores)
-game.split_into_frames
-game.convert_to_frame_objects
-
-game.calculate_bonus
 puts game.sum_score
-
