@@ -36,7 +36,7 @@ class Game
     end
   end
 
-  def calculate_bonus
+  def apply_bonus_to_each_frame
     frames = convert_to_frame_objects
     frames.each_with_index do |frame, index|
       calculate_frame_bonus(frames, frame, index) if frame.score == 10 && index != 9
@@ -68,7 +68,7 @@ class Game
 
   def sum_score
     frame_scores = 0
-    frames = calculate_bonus
+    frames = apply_bonus_to_each_frame
     frames.each do |frame|
       frame_scores += frame.score
     end
