@@ -30,14 +30,13 @@ class Game
     end
   end
 
-  def convert_to_frame_objects
+  def chunk_to_frames
     split_into_frames.map do |frame|
       Frame.new(*frame)
     end
   end
 
-  def apply_bonus_to_each_frame
-    frames = convert_to_frame_objects
+  def calculate_bonus_score(frames)
     frames.each_with_index do |frame, index|
       calculate_frame_bonus(frames, frame, index) if frame.score == 10 && index != 9
     end
@@ -66,12 +65,17 @@ class Game
     frame.bonus = frames[index + 1].first_score
   end
 
-  def sum_score
+  def sum_scores_with_bonus(frames)
     frame_scores = 0
-    frames = apply_bonus_to_each_frame
     frames.each do |frame|
       frame_scores += frame.score
     end
     frame_scores
+  end
+
+  def calculate_scores
+    frames = chunk_to_frames
+    frames = calculate_bonus_score(frames)
+    sum_scores_with_bonus(frames)
   end
 end
