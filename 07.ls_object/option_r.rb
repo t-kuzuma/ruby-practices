@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Option_r
+class OptionR
   def initialize(option, files)
     @option = option
     @files = files

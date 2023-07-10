@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-class Ls_command
-  attr_reader :options
-
+class LsCommand
   def initialize(opt)
     @options = {}
     opt.on('-l') { @options[:l] = true }
@@ -12,11 +10,11 @@ class Ls_command
   end
 
   def show_files
-    a = Option_a.new(options[:a])
+    a = OptionA.new(@options[:a])
     files = a.apply_option
-    r = Option_r.new(options[:r], files)
+    r = OptionR.new(@options[:r], files)
     files = r.apply_option
-    l = Option_l.new(options[:l], files)
+    l = OptionL.new(@options[:l], files)
     l.apply_option
   end
 end
