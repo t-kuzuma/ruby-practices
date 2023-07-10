@@ -5,7 +5,7 @@ class OptionA
     @option = option
   end
 
-  def apply_option
+  def apply_option_and_get_files
     @option ? Dir.glob('*', File::FNM_DOTMATCH) : Dir.glob('*')
   end
 end

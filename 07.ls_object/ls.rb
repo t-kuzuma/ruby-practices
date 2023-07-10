@@ -8,6 +8,5 @@ require_relative 'ls_command'
 require 'optparse'
 require 'etc'
 
-opt = OptionParser.new
-ls = LsCommand.new(opt)
+ls = LsCommand.new
 ls.show_files

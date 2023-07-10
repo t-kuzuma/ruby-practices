@@ -79,7 +79,7 @@ class OptionL
     end
   end
 
-  def apply_option
+  def apply_option_and_print_files
     @option ? show_detailed : show_default
   end
 end
