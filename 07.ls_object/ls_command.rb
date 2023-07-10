@@ -10,7 +10,7 @@ class LsCommand
     opt.parse!(ARGV)
   end
 
-  def get_files_with_a_option
+  def files_with_a_option
     a = OptionA.new(@options[:a])
     a.apply_option_and_get_files
   end
@@ -26,7 +26,7 @@ class LsCommand
   end
 
   def show_files
-    files = get_files_with_a_option
+    files = files_with_a_option
     files = apply_r_option_to_files(files)
     print_file_with_l_option(files)
   end
